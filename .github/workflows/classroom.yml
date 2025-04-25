@@ -1,0 +1,29 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: names that need attention
+      id: names-that-need-attention
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: names that need attention
+        setup-command: ''
+        command: make test
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        NAMES-THAT-NEED-ATTENTION_RESULTS: "${{steps.names-that-need-attention.outputs.result}}"
+      with:
+        runners: names-that-need-attention
